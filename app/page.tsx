@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import jsPDF from "jspdf";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
 
   const [repairName, setRepairName] = useState("");
   const [deviceType, setDeviceType] = useState("iPhone");
+  const [repairType, setRepairType] = useState("Screen Repair");
   const [notes, setNotes] = useState("");
 
   const [partCost, setPartCost] = useState("");
@@ -79,55 +81,47 @@ export default function Home() {
   };
 
   const saveRepairJob = () => {
-    if (!repairName || !customerPaid) {
-      showToast(
-        "Repair name and customer paid required"
-      );
-
-      return;
-    }
-
-    const newRepair = {
-      repairName,
-      deviceType,
-      notes,
-      customerPaid,
-      totalExpenses,
-      profit,
-      margin,
-      date: new Date().toLocaleString(),
-    };
-
-    const updatedHistory = [
-      newRepair,
-      ...repairHistory,
-    ];
-
-    setRepairHistory(updatedHistory);
-
-    localStorage.setItem(
-      "repairHistory",
-      JSON.stringify(updatedHistory)
+  if (!repairName || !customerPaid) {
+    showToast(
+      "Repair name and customer paid required"
     );
 
-    showToast("Repair saved");
+    return;
+  }
+
+  const newRepair = {
+    repairName,
+    deviceType,
+    repairType,
+    notes,
+
+    partCost,
+    laborCharge,
+    shippingCost,
+
+    customerPaid,
+
+    totalExpenses,
+    profit,
+    margin,
+
+    date: new Date().toLocaleString(),
   };
 
-  const deleteRepair = (index: number) => {
-    const updatedHistory =
-      repairHistory.filter(
-        (_, i) => i !== index
-      );
+  const updatedHistory = [
+    newRepair,
+    ...repairHistory,
+  ];
 
-    setRepairHistory(updatedHistory);
+  setRepairHistory(updatedHistory);
 
-    localStorage.setItem(
-      "repairHistory",
-      JSON.stringify(updatedHistory)
-    );
+  localStorage.setItem(
+    "repairHistory",
+    JSON.stringify(updatedHistory)
+  );
 
-    showToast("Repair deleted");
-  };
+  showToast("Repair saved");
+};
 
   const exportPDF = () => {
     const doc = new jsPDF();
@@ -149,7 +143,7 @@ export default function Home() {
     );
 
     doc.text(
-      `Device: ${deviceType}`,
+      `Device: ${repair.deviceType} • {repair.repairType}`,
       20,
       50
     );
@@ -262,23 +256,41 @@ export default function Home() {
           <div className="flex justify-between items-center mb-6">
 
             <div>
-              <h1 className="text-5xl font-bold">
-                RepairCalc Pro
-              </h1>
+              <div className="flex items-center gap-4 mb-6">
+  <Image
+    src="/logo2.png"
+    alt="RepairCalc Pro Logo"
+    width={200}
+    height={200}
+    className="rounded-2xl"
+  />
 
-              <p className="text-gray-300 mt-2">
-                Built for repair professionals
-              </p>
-            </div>
+  <div>
+    <h1 className="text-5xl font-bold text-white">
+      RepairCalc Pro
+    </h1>
 
-            <button
+    <p className="text-gray-300 mt-1">
+      Know your real profit on every repair.
+    </p>
+  </div>
+</div>
+<button
               onClick={() =>
                 setDarkMode(!darkMode)
               }
-              className="bg-gray-800 border border-gray-600 px-5 py-4 rounded-2xl"
+              className="bg-gray-800 border border-gray-600 px-3 py-2 rounded-xl ml-[190px] mb-4"
             >
               {darkMode ? "☀️" : "🌙"}
-            </button>
+            </button> 
+              <button 
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl mt-6 transition"
+>
+  Calculate Repair Profit
+</button>
+            </div>
+
+            
 
           </div>
 
@@ -304,13 +316,23 @@ export default function Home() {
                 )
               }
               className="w-full bg-gray-800 border border-gray-700 text-white p-4 rounded-2xl"
-            >
+            > 
               <option>iPhone</option>
               <option>Samsung</option>
               <option>Computer</option>
               <option>Console</option>
               <option>Appliance</option>
-            </select>
+            </select><select
+  className="w-full bg-gray-800 border border-gray-700 text-white p-4 rounded-2xl mt-4"
+>
+  <option>Screen Repair</option>
+  <option>Battery Replacement</option>
+  <option>Charging Port Repair</option>
+  <option>Back Glass Repair</option>
+  <option>Water Damage</option>
+  <option>HDMI Repair</option>
+  <option>Console Repair</option>
+</select>
 
             <textarea
               placeholder="Repair notes..."
@@ -400,7 +422,15 @@ export default function Home() {
                 }`}
               >
                 <p>Net Profit</p>
-
+<p className="mt-2 text-sm font-semibold">
+  {profit >= 100
+    ? "Excellent Profit"
+    : profit >= 50
+    ? "Healthy Margin"
+    : profit > 0
+    ? "Low Margin Warning"
+    : "Losing Money"}
+</p>
                 <h2 className="text-5xl font-bold">
                   ${profit.toFixed(2)}
                 </h2>
@@ -412,6 +442,18 @@ export default function Home() {
                 <h2 className="text-4xl font-bold">
                   {margin}%
                 </h2>
+                <div className="w-full bg-gray-300 rounded-full h-4 mt-4 overflow-hidden">
+  <div
+    className={`h-4 ${
+      Number(margin) >= 50
+        ? "bg-green-500"
+        : Number(margin) >= 25
+        ? "bg-yellow-500"
+        : "bg-red-500"
+    }`}
+    style={{ width: `${Math.min(Number(margin), 100)}%` }}
+  ></div>
+</div>
               </div>
 
             </div>
@@ -520,15 +562,16 @@ export default function Home() {
                         }
                       </p>
 
-                      <p className="mt-2">
-                        Profit: $
-                        {Number(
-                          repair.profit
-                        ).toFixed(
-                          2
-                        )}
-                      </p>
-
+                      <p
+  className={`inline-block mt-2 px-3 py-1 rounded-full font-semibold ${
+    Number(repair.profit) >= 0
+      ? "bg-green-600 text-white"
+      : "bg-red-600 text-white"
+  }`}
+>
+  Profit: $
+  {Number(repair.profit).toFixed(2)}
+</p>
                       <p>
                         Margin:
                         {
