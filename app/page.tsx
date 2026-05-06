@@ -143,7 +143,7 @@ export default function Home() {
     );
 
     doc.text(
-      `Device: ${deviceType} • ${repairType}`,
+    `Device: ${deviceType} • ${repairType}`,
       20,
       50
     );
