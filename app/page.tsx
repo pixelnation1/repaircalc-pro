@@ -85,7 +85,18 @@ export default function Home() {
     showToast(
       "Repair name and customer paid required"
     );
+const deleteRepair = (indexToDelete: number) => {
+  const updatedHistory = repairHistory.filter(
+    (_: any, index: number) => index !== indexToDelete
+  );
 
+  setRepairHistory(updatedHistory);
+
+  localStorage.setItem(
+    "repairHistory",
+    JSON.stringify(updatedHistory)
+  );
+};
     return;
   }
 
@@ -596,7 +607,7 @@ export default function Home() {
 
                     <button
                       onClick={() =>
-                        deleteRepair(
+                        (
                           index
                         )
                       }
