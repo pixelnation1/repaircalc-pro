@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import jsPDF from "jspdf";
+import Auth from "./auth";
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
@@ -246,7 +247,7 @@ const deleteRepair = (indexToDelete: number) => {
         ).toFixed(1)
       : "0";
 
-  return (
+ return ( 
     <main
       className={`min-h-screen p-4 ${
         darkMode
@@ -261,6 +262,8 @@ const deleteRepair = (indexToDelete: number) => {
             {toast}
           </div>
         )}
+
+        <Auth />
 
         <div className="bg-[#081225] border border-gray-700 p-8 rounded-3xl shadow-2xl">
 
